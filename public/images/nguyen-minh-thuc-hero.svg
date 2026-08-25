@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1200" viewBox="0 0 1000 1200" role="img" aria-labelledby="title desc">
+  <title id="title">ẢNH CHÂN DUNG — NGUYỄN MINH THỨC</title>
+  <desc id="desc">Ảnh giữ chỗ phong cách xanh navy, vàng kim và xanh dương cho website tư vấn tài chính cá nhân.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#020817"/><stop offset=".55" stop-color="#071a30"/><stop offset="1" stop-color="#06142a"/></linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1687ff" stop-opacity=".32"/><stop offset="1" stop-color="#020817"/></linearGradient>
+    <linearGradient id="suit" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#102b4d"/><stop offset="1" stop-color="#020817"/></linearGradient>
+    <radialGradient id="skin"><stop stop-color="#a9b6c8" stop-opacity=".35"/><stop offset="1" stop-color="#1687ff" stop-opacity=".08"/></radialGradient>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M64 0H0V64" fill="none" stroke="#54c4ff" stroke-opacity=".07"/></pattern>
+    <filter id="glow"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="1000" height="1200" fill="url(#bg)"/>
+  <rect width="1000" height="1200" fill="url(#grid)"/>
+  <ellipse cx="580" cy="456" rx="320" ry="336" fill="#1687ff" opacity=".12" filter="url(#glow)"/>
+  <path d="M0 816 L140 744 L250 792 L390 600 L530 696 L680 456 L820 528 L1000 324" fill="none" stroke="#1687ff" stroke-opacity=".28" stroke-width="3"/>
+  <g opacity=".9">
+      <circle cx="500" cy="408" r="115" fill="url(#skin)" stroke="#54c4ff" stroke-opacity=".38" stroke-width="3"/>
+      <path d="M 250 1008 Q 280 636 500 612 Q 720 636 750 1008 Z" fill="url(#suit)" stroke="#1687ff" stroke-opacity=".5" stroke-width="3"/>
+      <path d="M 440 636 L 500 816 L 560 636" fill="#f4f7fb" opacity=".92"/>
+    </g>
+  <g transform="translate(80 1056)">
+    <rect x="0" y="-48" width="54" height="3" fill="#e7b449"/>
+    <text fill="#f6d47a" font-family="Arial, sans-serif" font-size="35" font-weight="700" letter-spacing="2">ẢNH CHÂN DUNG</text>
+    <text y="38" fill="#a9b6c8" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">NGUYỄN MINH THỨC</text>
+  </g>
+  <rect x="2" y="2" width="996" height="1196" fill="none" stroke="#e7b449" stroke-opacity=".2" stroke-width="4"/>
+</svg>

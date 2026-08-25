@@ -1,0 +1,2 @@
+import type { ReactNode } from "react";import { contactHref, type ContactKey } from "@/config/contact";
+export function ContactLink({kind,children,className="",label}:{kind:ContactKey;children:ReactNode;className?:string;label?:string}){const href=contactHref(kind);if(!href)return <span className={className} aria-disabled="true" title="Thông tin liên hệ đang được cập nhật">{children}</span>;return <a href={href} className={className} aria-label={label} target={href.startsWith("http")?"_blank":undefined} rel="noreferrer">{children}</a>}

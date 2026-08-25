@@ -1,0 +1,1 @@
+export function calculateAnnuity(principal:number, years:number, annualRate:number){ const months=years*12; const rate=annualRate/100/12; const monthly=rate===0?principal/months:principal*rate*Math.pow(1+rate,months)/(Math.pow(1+rate,months)-1); return {monthly,total:monthly*months,months}; }
