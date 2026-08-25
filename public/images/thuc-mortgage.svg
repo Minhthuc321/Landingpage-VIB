@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">VAY NHÀ / THẾ CHẤP — PLACEHOLDER HÌNH ẢNH</title>
+  <desc id="desc">Ảnh giữ chỗ phong cách xanh navy, vàng kim và xanh dương cho website tư vấn tài chính cá nhân.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#020817"/><stop offset=".55" stop-color="#071a30"/><stop offset="1" stop-color="#06142a"/></linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1687ff" stop-opacity=".32"/><stop offset="1" stop-color="#020817"/></linearGradient>
+    <linearGradient id="suit" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#102b4d"/><stop offset="1" stop-color="#020817"/></linearGradient>
+    <radialGradient id="skin"><stop stop-color="#a9b6c8" stop-opacity=".35"/><stop offset="1" stop-color="#1687ff" stop-opacity=".08"/></radialGradient>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M64 0H0V64" fill="none" stroke="#54c4ff" stroke-opacity=".07"/></pattern>
+    <filter id="glow"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <rect width="1200" height="800" fill="url(#grid)"/>
+  <ellipse cx="696" cy="304" rx="384" ry="224" fill="#1687ff" opacity=".12" filter="url(#glow)"/>
+  <path d="M0 544 L168 496 L300 528 L468 400 L636 464 L816 304 L984 352 L1200 216" fill="none" stroke="#1687ff" stroke-opacity=".28" stroke-width="3"/>
+  <g transform="translate(372 128)" fill="none" stroke-linejoin="round">
+      <path d="M0 208 L228 0 L456 208 V384 H0Z" fill="url(#panel)" stroke="#54c4ff" stroke-width="4"/>
+      <path d="M180 384 V248 H276 V384" stroke="#e7b449" stroke-width="4"/>
+    </g>
+  <g transform="translate(96 656)">
+    <rect x="0" y="-48" width="54" height="3" fill="#e7b449"/>
+    <text fill="#f6d47a" font-family="Arial, sans-serif" font-size="42" font-weight="700" letter-spacing="2">VAY NHÀ / THẾ CHẤP</text>
+    <text y="38" fill="#a9b6c8" font-family="Arial, sans-serif" font-size="19" letter-spacing="3">PLACEHOLDER HÌNH ẢNH</text>
+  </g>
+  <rect x="2" y="2" width="1196" height="796" fill="none" stroke="#e7b449" stroke-opacity=".2" stroke-width="4"/>
+</svg>
