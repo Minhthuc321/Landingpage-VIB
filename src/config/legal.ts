@@ -1,0 +1,1 @@
+export const disclaimer = "Website này là trang giới thiệu và tiếp nhận nhu cầu tư vấn cá nhân, không phải website giao dịch chính thức của Ngân hàng Quốc tế VIB. Sản phẩm, điều kiện, lãi suất, hạn mức và quyết định phê duyệt phụ thuộc chính sách của ngân hàng tại từng thời kỳ.";

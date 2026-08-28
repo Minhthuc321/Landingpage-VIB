@@ -1,0 +1,1 @@
+export const navigation = [{label:"Trang chủ",href:"#trang-chu"},{label:"Thẻ tín dụng",href:"#the-tin-dung"},{label:"Vay thế chấp",href:"#vay-the-chap"},{label:"Vay mua ô tô",href:"#vay-mua-o-to"},{label:"Về tôi",href:"#ve-toi"},{label:"Tin tức",href:"#faq"},{label:"Liên hệ",href:"#dang-ky"}] as const;

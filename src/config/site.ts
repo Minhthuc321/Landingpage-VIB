@@ -1,0 +1,1 @@
+export const site = { name: "Nguyễn Minh Thức", role: "Chuyên viên tư vấn giải pháp tài chính", area: "Hải Phòng", url: "https://vib.minhthucmkt.vn", title: "Nguyễn Minh Thức | Tư vấn giải pháp tài chính tại Hải Phòng", description: "Tiếp nhận nhu cầu tư vấn thẻ tín dụng, vay mua nhà, vay thế chấp và vay mua ô tô tại Hải Phòng." } as const;
