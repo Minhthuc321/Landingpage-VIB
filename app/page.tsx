@@ -4,6 +4,21 @@ import React, { useEffect } from "react";
 
 export default function Home() {
   useEffect(() => {
+    // Dynamic Theme Overrides
+    const savedTheme = localStorage.getItem('vib_theme_settings');
+    if (savedTheme) {
+      try {
+        const theme = JSON.parse(savedTheme);
+        const root = document.documentElement;
+        if (theme.primary_blue) root.style.setProperty('--primary-blue', theme.primary_blue);
+        if (theme.primary_blue_light) root.style.setProperty('--primary-blue-light', theme.primary_blue_light);
+        if (theme.accent_gold) root.style.setProperty('--accent-gold', theme.accent_gold);
+        if (theme.dark_bg) root.style.setProperty('--dark-slate', theme.dark_bg);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     const amountRange = document.getElementById('amountRange') as HTMLInputElement;
     const monthRange = document.getElementById('monthRange') as HTMLInputElement;
     const amountVal = document.getElementById('amountVal');
@@ -65,8 +80,8 @@ export default function Home() {
       --font-body: 'Plus Jakarta Sans', sans-serif;
       --radius: 14px;
       --shadow-glow: 0 15px 35px rgba(37, 99, 235, 0.2);
-      --gradient-blue: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
-      --gradient-gold: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      --gradient-blue: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+      --gradient-gold: linear-gradient(135deg, var(--accent-gold) 0%, #d97706 100%);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; scroll-behavior: smooth; }
@@ -186,6 +201,7 @@ export default function Home() {
         <li><a href="#calculator">Tính Lãi Suất</a></li>
         <li><a href="#why">Ưu Điểm</a></li>
         <li><a href="#register">Đăng Ký</a></li>
+        <li><a href="/admin" style="color:#f59e0b; font-weight:bold;">⚙️ Admin</a></li>
       </ul>
 
       <a href="#register" class="btn btn-gold"><i class="fa-solid fa-headset"></i> TƯ VẤN MIỄN PHÍ</a>

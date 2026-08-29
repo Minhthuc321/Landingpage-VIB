@@ -25,7 +25,12 @@ import {
   X,
   Puzzle,
   LogOut,
-  UserCheck
+  UserCheck,
+  Palette,
+  Type,
+  Layout,
+  Phone,
+  Image as ImageIcon
 } from 'lucide-react';
 
 interface ToolItem {
@@ -52,16 +57,70 @@ interface PluginItem {
   status: 'active' | 'disabled';
 }
 
+interface ThemeConfig {
+  brand_title: string;
+  hotline: string;
+  topbar_text: string;
+  cta_header_text: string;
+  primary_blue: string;
+  primary_blue_light: string;
+  accent_gold: string;
+  dark_bg: string;
+  hero_badge: string;
+  hero_title: string;
+  hero_subtitle: string;
+  hero_cta_main: string;
+  hero_cta_sub: string;
+  hero_image: string;
+  stat_1_val: string;
+  stat_1_lbl: string;
+  stat_2_val: string;
+  stat_2_lbl: string;
+  stat_3_val: string;
+  stat_3_lbl: string;
+  footer_copyright: string;
+  footer_address: string;
+}
+
+const DEFAULT_THEME: ThemeConfig = {
+  brand_title: 'TÀI CHÍNH SOLUTION VIB',
+  hotline: '1900 6868 - 0988 999 888',
+  topbar_text: '⚡ TƯ VẤN HỒ SƠ TÀI CHÍNH DUYỆT NHANH TRONG 15 PHÚT',
+  cta_header_text: 'TƯ VẤN MIỄN PHÍ',
+  primary_blue: '#1e40af',
+  primary_blue_light: '#2563eb',
+  accent_gold: '#f59e0b',
+  dark_bg: '#0f172a',
+  hero_badge: '🛡️ GIẢI PHÁP TÀI CHÍNH DÂN DỤNG & DOANH NGHIỆP',
+  hero_title: 'MỞ THẺ TÍN DỤNG & VAY VỐN HẠN MỨC CAO VIB',
+  hero_subtitle: 'Hỗ trợ mở thẻ tín dụng cashback hoàn tiền tới 15%, vay tiêu dùng, vay mua nhà/xe với lãi suất ưu đãi chỉ từ 0.6%/tháng. Thủ tục tối giản, giải ngân nhanh trong ngày.',
+  hero_cta_main: 'ĐĂNG KÝ HỒ SƠ NGAY',
+  hero_cta_sub: 'TÍNH LÃI SUẤT',
+  hero_image: 'https://images.unsplash.com/photo-1556742049-0a67daf64f42?q=80&w=800&auto=format&fit=crop',
+  stat_1_val: '10,000+',
+  stat_1_lbl: 'Hồ Sơ Đã Duyệt',
+  stat_2_val: '15 Phút',
+  stat_2_lbl: 'Xử Lý Hồ Sơ',
+  stat_3_val: '0 VNĐ',
+  stat_3_lbl: 'Phí Tư Vấn ban đầu',
+  footer_copyright: '© 2026 Tài Chính Solution VIB. Tất cả quyền được bảo lưu.',
+  footer_address: 'Địa chỉ văn phòng: Tòa nhà Landmark Financial, Quận Cầu Giấy, Hà Nội. Hotline: 1900 6868'
+};
+
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'analytics' | 'tools' | 'plugins' | 'affiliate' | 'settings'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'appearance' | 'tools' | 'plugins' | 'affiliate'>('appearance');
 
   // Auth State
   const [username, setUsername] = useState('admin@minhthucmkt.vn');
   const [password, setPassword] = useState('MinhThuc2026@Admin');
   const [loginError, setLoginError] = useState('');
 
-  // Sample Data State
+  // Theme Config State
+  const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_THEME);
+  const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
+
+  // Sample Tools & Plugins
   const [tools, setTools] = useState<ToolItem[]>([
     { id: '1', name: 'Mở Thẻ Tín Dụng VIB Cashback', slug: 'vib-cashback', category: 'Credit Card', official_url: 'https://vib.com.vn', affiliate_url: 'https://vib.minhthucmkt.vn/go/vib-cashback', commission: '500,000 VNĐ / thẻ', status: 'active', rating: 4.9 },
     { id: '2', name: 'Vay Tiêu Dùng Hạn Mức 500Tr', slug: 'vay-tieu-dung', category: 'Personal Loan', official_url: 'https://vib.com.vn', affiliate_url: 'https://vib.minhthucmkt.vn/go/vay-tieu-dung', commission: '1.5% giải ngân', status: 'active', rating: 4.8 },
@@ -75,7 +134,6 @@ export default function AdminPage() {
     { id: 'p3', name: 'OpenClaw Credit Checker', slug: 'openclaw-cic', description: 'Cổng kiểm tra điểm tín dụng CIC tự động', icon_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=128&auto=format&fit=crop&q=80', badge_text: 'GATEWAY', type: 'widget', external_url: 'https://vib.minhthucmkt.vn', status: 'active' }
   ]);
 
-  const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingTool, setEditingTool] = useState<ToolItem | null>(null);
   const [toolForm, setToolForm] = useState<Partial<ToolItem>>({
@@ -93,6 +151,14 @@ export default function AdminPage() {
     if (token === 'vib_admin_session_token_2026') {
       setIsAuthenticated(true);
     }
+    const savedTheme = localStorage.getItem('vib_theme_settings');
+    if (savedTheme) {
+      try {
+        setTheme(JSON.parse(savedTheme));
+      } catch (e) {
+        console.error(e);
+      }
+    }
   }, []);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -109,6 +175,22 @@ export default function AdminPage() {
   const handleLogout = () => {
     localStorage.removeItem('vib_admin_token');
     setIsAuthenticated(false);
+  };
+
+  const handleSaveTheme = (e: React.FormEvent) => {
+    e.preventDefault();
+    localStorage.setItem('vib_theme_settings', JSON.stringify(theme));
+    setSaveSuccessMsg('🎉 Đã lưu và cập nhật cấu hình giao diện & màu sắc thành công!');
+    setTimeout(() => setSaveSuccessMsg(''), 4000);
+  };
+
+  const handleResetTheme = () => {
+    if (confirm('Khôi phục giao diện & màu sắc về mặc định ban đầu?')) {
+      setTheme(DEFAULT_THEME);
+      localStorage.removeItem('vib_theme_settings');
+      setSaveSuccessMsg('Đã khôi phục giao diện về mặc định.');
+      setTimeout(() => setSaveSuccessMsg(''), 4000);
+    }
   };
 
   const handleSaveTool = (e: React.FormEvent) => {
@@ -135,7 +217,7 @@ export default function AdminPage() {
   };
 
   const handleDeleteTool = (id: string) => {
-    if (confirm('Bạn có chắc muốn xóa công cụ dịch vụ này?')) {
+    if (confirm('Bạn có chắc muốn xóa sản phẩm dịch vụ này?')) {
       setTools(tools.filter(t => t.id !== id));
     }
   };
@@ -252,8 +334,9 @@ export default function AdminPage() {
       <div className="border-b border-slate-800 bg-slate-900/90 sticky top-0 z-20 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href="/" className="text-xs text-slate-400 hover:text-white px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700">
-              ← Về trang chủ
+            <a href="/" target="_blank" rel="noreferrer" className="text-xs text-slate-400 hover:text-white px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 flex items-center gap-1">
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Xem trang chủ</span>
             </a>
             <div className="flex items-center gap-2">
               <SlidersHorizontal className="w-5 h-5 text-indigo-400" />
@@ -280,6 +363,16 @@ export default function AdminPage() {
         {/* Navigation Tabs */}
         <div className="flex items-center gap-2 border-b border-slate-800 pb-4 mb-8 overflow-x-auto">
           <button
+            onClick={() => setActiveTab('appearance')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
+              activeTab === 'appearance' ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            <Palette className="w-4 h-4 text-amber-400" />
+            <span>🎨 Chỉnh Sửa Giao Diện, Text & Màu Sắc</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('analytics')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
               activeTab === 'analytics' ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
@@ -296,7 +389,7 @@ export default function AdminPage() {
             }`}
           >
             <Sparkles className="w-4 h-4" />
-            <span>Quản lý Sản Phẩm & Thẻ ({tools.length})</span>
+            <span>Quản lý Sản Phẩm ({tools.length})</span>
           </button>
 
           <button
@@ -316,11 +409,313 @@ export default function AdminPage() {
             }`}
           >
             <LinkIcon className="w-4 h-4" />
-            <span>Quản lý Link Affiliate & Hoa Hồng</span>
+            <span>Quản lý Link Affiliate</span>
           </button>
         </div>
 
-        {/* TAB 1: ANALYTICS */}
+        {saveSuccessMsg && (
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-sm font-semibold flex items-center justify-between">
+            <span>{saveSuccessMsg}</span>
+            <a href="/" target="_blank" className="px-3 py-1 bg-emerald-600 text-white text-xs font-bold rounded-lg flex items-center gap-1">
+              <span>Xem Thay Đổi</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        )}
+
+        {/* TAB 1: APPEARANCE & THEME EDITING */}
+        {activeTab === 'appearance' && (
+          <form onSubmit={handleSaveTheme} className="space-y-8">
+            {/* Top Bar Actions */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+              <div>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Palette className="w-5 h-5 text-amber-400" />
+                  <span>Trình Chỉnh Sửa Giao Diện & Màu Sắc</span>
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">Thay đổi logo, màu sắc chủ đạo (hex/picker), tiêu đề, kịch bản văn bản & chân trang trực tiếp trên <code>vib.minhthucmkt.vn</code>.</p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleResetTheme}
+                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition-all"
+                >
+                  Mặc Định
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition-all"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Lưu Giao Diện Mới</span>
+                </button>
+              </div>
+            </div>
+
+            {/* SECTION A: COLOR PALETTE */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 text-indigo-400">
+                <Palette className="w-4 h-4" />
+                <span>1. Bảng Màu Chủ Đạo (Color Theme)</span>
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-2">Màu Xanh Đậm (Primary Blue)</label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={theme.primary_blue}
+                      onChange={(e) => setTheme({ ...theme, primary_blue: e.target.value })}
+                      className="w-10 h-10 rounded-xl bg-transparent border-0 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={theme.primary_blue}
+                      onChange={(e) => setTheme({ ...theme, primary_blue: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-2">Màu Xanh Sáng (Primary Light)</label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={theme.primary_blue_light}
+                      onChange={(e) => setTheme({ ...theme, primary_blue_light: e.target.value })}
+                      className="w-10 h-10 rounded-xl bg-transparent border-0 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={theme.primary_blue_light}
+                      onChange={(e) => setTheme({ ...theme, primary_blue_light: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-2">Màu Vàng Kim (Accent Gold)</label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={theme.accent_gold}
+                      onChange={(e) => setTheme({ ...theme, accent_gold: e.target.value })}
+                      className="w-10 h-10 rounded-xl bg-transparent border-0 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={theme.accent_gold}
+                      onChange={(e) => setTheme({ ...theme, accent_gold: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-2">Màu Nền Tối (Dark Slate)</label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={theme.dark_bg}
+                      onChange={(e) => setTheme({ ...theme, dark_bg: e.target.value })}
+                      className="w-10 h-10 rounded-xl bg-transparent border-0 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={theme.dark_bg}
+                      onChange={(e) => setTheme({ ...theme, dark_bg: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* SECTION B: BRANDING & HEADER */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 text-indigo-400">
+                <Type className="w-4 h-4" />
+                <span>2. Thương Hiệu, Thanh Thông Báo & Header</span>
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Tên Thương Hiệu Logo (Brand Title)</label>
+                  <input
+                    type="text"
+                    value={theme.brand_title}
+                    onChange={(e) => setTheme({ ...theme, brand_title: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Hotline Hỗ Trợ 24/7</label>
+                  <input
+                    type="text"
+                    value={theme.hotline}
+                    onChange={(e) => setTheme({ ...theme, hotline: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Thông Báo Trên Cùng (Topbar Bar)</label>
+                  <input
+                    type="text"
+                    value={theme.topbar_text}
+                    onChange={(e) => setTheme({ ...theme, topbar_text: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Nút Nút Tư Vấn Header CTA</label>
+                  <input
+                    type="text"
+                    value={theme.cta_header_text}
+                    onChange={(e) => setTheme({ ...theme, cta_header_text: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* SECTION C: HERO BANNER CONTENT */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 text-indigo-400">
+                <Layout className="w-4 h-4" />
+                <span>3. Tiêu Đề & Nội Dung Banner Hero (Hero Section)</span>
+              </h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Thẻ Nhãn Nổi Bật (Hero Badge)</label>
+                  <input
+                    type="text"
+                    value={theme.hero_badge}
+                    onChange={(e) => setTheme({ ...theme, hero_badge: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Tiêu Đề Lớn (Hero Main Title)</label>
+                  <input
+                    type="text"
+                    value={theme.hero_title}
+                    onChange={(e) => setTheme({ ...theme, hero_title: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Mô Tả Chi Tiết (Hero Subtitle)</label>
+                  <textarea
+                    rows={3}
+                    value={theme.hero_subtitle}
+                    onChange={(e) => setTheme({ ...theme, hero_subtitle: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">Text Nút Đăng Ký (CTA 1)</label>
+                    <input
+                      type="text"
+                      value={theme.hero_cta_main}
+                      onChange={(e) => setTheme({ ...theme, hero_cta_main: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">Text Nút Lãi Suất (CTA 2)</label>
+                    <input
+                      type="text"
+                      value={theme.hero_cta_sub}
+                      onChange={(e) => setTheme({ ...theme, hero_cta_sub: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">URL Hình Ảnh Thẻ Display</label>
+                    <input
+                      type="text"
+                      value={theme.hero_image}
+                      onChange={(e) => setTheme({ ...theme, hero_image: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* SECTION D: STATS & FOOTER */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 text-indigo-400">
+                <BarChart3 className="w-4 h-4" />
+                <span>4. Thống Kê Counter & Chân Trang Footer</span>
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Stat 1 (Số / Nhãn)</label>
+                  <div className="flex gap-2">
+                    <input type="text" value={theme.stat_1_val} onChange={(e) => setTheme({ ...theme, stat_1_val: e.target.value })} className="w-1/2 bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-white" />
+                    <input type="text" value={theme.stat_1_lbl} onChange={(e) => setTheme({ ...theme, stat_1_lbl: e.target.value })} className="w-1/2 bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-white" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Stat 2 (Số / Nhãn)</label>
+                  <div className="flex gap-2">
+                    <input type="text" value={theme.stat_2_val} onChange={(e) => setTheme({ ...theme, stat_2_val: e.target.value })} className="w-1/2 bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-white" />
+                    <input type="text" value={theme.stat_2_lbl} onChange={(e) => setTheme({ ...theme, stat_2_lbl: e.target.value })} className="w-1/2 bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-white" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Stat 3 (Số / Nhãn)</label>
+                  <div className="flex gap-2">
+                    <input type="text" value={theme.stat_3_val} onChange={(e) => setTheme({ ...theme, stat_3_val: e.target.value })} className="w-1/2 bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-white" />
+                    <input type="text" value={theme.stat_3_lbl} onChange={(e) => setTheme({ ...theme, stat_3_lbl: e.target.value })} className="w-1/2 bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-white" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Bản Quyền (Footer Copyright)</label>
+                  <input type="text" value={theme.footer_copyright} onChange={(e) => setTheme({ ...theme, footer_copyright: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Địa Chỉ Văn Phòng (Footer Address)</label>
+                  <input type="text" value={theme.footer_address} onChange={(e) => setTheme({ ...theme, footer_address: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white" />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition-all"
+              >
+                <Save className="w-5 h-5" />
+                <span>Lưu Tất Cả Cấu Hình Giao Diện & Màu Sắc</span>
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* TAB 2: ANALYTICS */}
         {activeTab === 'analytics' && (
           <div className="space-y-8">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -351,7 +746,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* TAB 2: TOOLS MANAGEMENT */}
+        {/* TAB 3: TOOLS MANAGEMENT */}
         {activeTab === 'tools' && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl">
@@ -407,7 +802,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* TAB 3: PLUGINS MANAGEMENT */}
+        {/* TAB 4: PLUGINS MANAGEMENT */}
         {activeTab === 'plugins' && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl">
@@ -464,7 +859,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* TAB 4: AFFILIATE LINKS */}
+        {/* TAB 5: AFFILIATE LINKS */}
         {activeTab === 'affiliate' && (
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
             <h3 className="text-base font-bold text-white mb-2">Đường dẫn Affiliate Ngầm</h3>
