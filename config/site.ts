@@ -1,4 +1,4 @@
-const fallbackUrl = "http://localhost:3000";
+const fallbackUrl = "https://vib.minhthucmkt.vn";
 
 function getSiteUrl() {
   const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -13,7 +13,7 @@ function getSiteUrl() {
 
 export const siteConfig = {
   url: getSiteUrl(),
-  title: "Nguyễn Minh Thức | Tư vấn tài chính cá nhân",
+  title: "Tư Vấn Giải Pháp Tài Chính - Mở Thẻ Tín Dụng & Vay Vốn Hạn Mức Cao 2026",
   description:
-    "Nguyễn Minh Thức hỗ trợ tư vấn thẻ tín dụng, vay mua nhà, vay thế chấp và vay mua ô tô.",
+    "Chuyên tư vấn mở thẻ tín dụng hạn mức cao, vay tiêu dùng, vay mua nhà/xe và đáo hạn thẻ tín dụng uy tín, duyệt nhanh trong 15 phút.",
 };
