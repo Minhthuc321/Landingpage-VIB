@@ -1,431 +1,489 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { getPublishedCMSData } from "@/lib/db";
+import { CMSData, PageSection, ProductItem } from "@/lib/types";
 
 export default function Home() {
+  const [cms, setCms] = useState<CMSData | null>(null);
+
+  // Loan calculator state
+  const [loanAmountMillion, setLoanAmountMillion] = useState(100);
+  const [loanMonths, setLoanMonths] = useState(24);
+
   useEffect(() => {
-    // Dynamic Theme Overrides
-    const savedTheme = localStorage.getItem('vib_theme_settings');
-    if (savedTheme) {
-      try {
-        const theme = JSON.parse(savedTheme);
-        const root = document.documentElement;
-        if (theme.primary_blue) root.style.setProperty('--primary-blue', theme.primary_blue);
-        if (theme.primary_blue_light) root.style.setProperty('--primary-blue-light', theme.primary_blue_light);
-        if (theme.accent_gold) root.style.setProperty('--accent-gold', theme.accent_gold);
-        if (theme.dark_bg) root.style.setProperty('--dark-slate', theme.dark_bg);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    const amountRange = document.getElementById('amountRange') as HTMLInputElement;
-    const monthRange = document.getElementById('monthRange') as HTMLInputElement;
-    const amountVal = document.getElementById('amountVal');
-    const monthVal = document.getElementById('monthVal');
-    const monthlyPay = document.getElementById('monthlyPay');
-
-    function calculateLoan() {
-      if (!amountRange || !monthRange || !amountVal || !monthVal || !monthlyPay) return;
-      const amountMillion = parseInt(amountRange.value);
-      const months = parseInt(monthRange.value);
-      const totalAmount = amountMillion * 1000000;
-      amountVal.innerText = totalAmount.toLocaleString('vi-VN') + ' VNĐ';
-      monthVal.innerText = months + ' Tháng';
-
-      const monthlyPrinciple = totalAmount / months;
-      const avgInterest = totalAmount * 0.007;
-      const totalMonthly = Math.round(monthlyPrinciple + avgInterest);
-
-      monthlyPay.innerText = totalMonthly.toLocaleString('vi-VN') + ' VNĐ';
-    }
-
-    if (amountRange && monthRange) {
-      amountRange.addEventListener('input', calculateLoan);
-      monthRange.addEventListener('input', calculateLoan);
-      calculateLoan();
-    }
-
-    const regForm = document.getElementById('regForm');
-    if (regForm) {
-      regForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        alert('🎉 Đã gửi thông tin hồ sơ Mẫu 05 thành công! Chuyên viên tài chính sẽ liên hệ Zalo tư vấn cho anh trong vòng 15 phút.');
-        (this as HTMLFormElement).reset();
-      });
-    }
+    fetchPublicCMS();
   }, []);
 
-  const rawHtml = `
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-
-  <style>
-    :root {
-      --primary-blue: #1e40af;
-      --primary-blue-light: #2563eb;
-      --accent-gold: #f59e0b;
-      --accent-gold-dark: #d97706;
-      --dark-slate: #0f172a;
-      --card-bg: rgba(30, 41, 59, 0.85);
-      --card-bg-light: #ffffff;
-      --light-gray: #f8fafc;
-      --border-color: rgba(37, 99, 235, 0.25);
-      --text-main: #f8fafc;
-      --text-dark: #1e293b;
-      --text-muted: #94a3b8;
-      --font-heading: 'Montserrat', sans-serif;
-      --font-body: 'Plus Jakarta Sans', sans-serif;
-      --radius: 14px;
-      --shadow-glow: 0 15px 35px rgba(37, 99, 235, 0.2);
-      --gradient-blue: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
-      --gradient-gold: linear-gradient(135deg, var(--accent-gold) 0%, #d97706 100%);
+  const fetchPublicCMS = async () => {
+    try {
+      const res = await fetch("/api/cms/content");
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          setCms(json.data);
+        }
+      }
+    } catch (e) {
+      console.error("Error fetching CMS public data:", e);
     }
+  };
 
-    * { box-sizing: border-box; margin: 0; padding: 0; scroll-behavior: smooth; }
-    body { font-family: var(--font-body); background-color: var(--dark-slate); color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
-    h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; line-height: 1.2; }
-    a { text-decoration: none; color: inherit; }
-    .container { max-width: 1240px; margin: 0 auto; padding: 0 20px; }
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert("🎉 Đã gửi thông tin hồ sơ Dịch Vụ Tài Chính thành công! Chuyên viên tư vấn sẽ liên hệ Zalo cho bạn trong vòng 15 phút.");
+    (e.target as HTMLFormElement).reset();
+  };
 
-    .badge-pill {
-      display: inline-flex; align-items: center; gap: 8px; padding: 6px 18px; border-radius: 50px;
-      background: rgba(37, 99, 235, 0.15); border: 1px solid var(--primary-blue-light); color: #60a5fa;
-      font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 18px;
-    }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 32px;
-      border-radius: 50px; font-family: var(--font-heading); font-size: 16px; font-weight: 700; cursor: pointer;
-      transition: all 0.3s ease; border: none;
-    }
-    .btn-blue { background: var(--gradient-blue); color: #ffffff; box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4); }
-    .btn-blue:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(37, 99, 235, 0.6); }
-    .btn-gold { background: var(--gradient-gold); color: #000000; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4); }
-    .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(245, 158, 11, 0.6); }
+  // Calculator math
+  const totalLoan = loanAmountMillion * 1000000;
+  const monthlyPrinciple = totalLoan / loanMonths;
+  const avgInterest = totalLoan * 0.007;
+  const totalMonthlyPay = Math.round(monthlyPrinciple + avgInterest);
 
-    .top-bar { background: var(--gradient-gold); color: #000000; padding: 8px 0; font-size: 13px; font-weight: 700; }
-    .top-flex { display: flex; justify-content: space-between; align-items: center; }
+  const theme = cms?.themeSettings;
+  const site = cms?.siteSettings;
+  const seo = cms?.seoSettings;
+  const sections = cms?.sections || [];
+  const products = (cms?.products || []).filter((p) => p.enabled && !p.isDeleted);
+  const navItems = (cms?.navigationItems || []).filter((n) => n.enabled);
 
-    header {
-      position: sticky; top: 0; z-index: 1000; background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 16px 0;
-    }
-    .nav-wrapper { display: flex; justify-content: space-between; align-items: center; }
-    .logo-brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-heading); font-size: 22px; font-weight: 800; }
-    .logo-icon { width: 42px; height: 42px; background: var(--gradient-blue); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; }
-    .nav-menu { display: flex; gap: 32px; list-style: none; }
-    .nav-menu a { font-size: 15px; font-weight: 600; color: var(--text-muted); transition: color 0.3s ease; }
-    .nav-menu a:hover { color: #60a5fa; }
+  const getSection = (key: string): PageSection | undefined => {
+    return sections.find((s) => s.key === key && s.enabled);
+  };
 
-    .hero-section {
-      padding: 120px 0 90px;
-      background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.18) 0%, transparent 60%),
-                  radial-gradient(circle at 20% 80%, rgba(245, 158, 11, 0.12) 0%, transparent 50%);
-    }
-    .hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 60px; align-items: center; }
-    .hero-text h1 { font-size: 46px; margin-bottom: 20px; letter-spacing: -1px; }
-    .hero-text h1 span { color: #60a5fa; }
-    .hero-text p { font-size: 18px; color: var(--text-muted); margin-bottom: 32px; }
-    .hero-stats-flex { display: flex; gap: 36px; margin-bottom: 36px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); }
-    .stat-item h3 { font-size: 30px; color: var(--accent-gold); font-weight: 800; }
-    .stat-item p { font-size: 13px; color: var(--text-muted); }
-    .hero-card-display { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 24px; padding: 20px; box-shadow: var(--shadow-glow); position: relative; }
-    .hero-card-display img { width: 100%; border-radius: 16px; display: block; }
+  const topbar = getSection("topbar");
+  const header = getSection("header");
+  const hero = getSection("hero");
+  const services = getSection("services");
+  const calculator = getSection("calculator");
+  const whyUs = getSection("why_us");
+  const processSec = getSection("process");
+  const aboutThuc = getSection("about_nguyen_minh_thuc");
+  const faqSec = getSection("faq");
+  const registerForm = getSection("register_form");
+  const footerSec = getSection("footer");
 
-    .section-padding { padding: 90px 0; }
-    .title-center { text-align: center; max-width: 700px; margin: 0 auto 60px; }
-    .title-center h2 { font-size: 36px; margin-bottom: 16px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-    .service-card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius); padding: 36px 28px; transition: all 0.3s ease; position: relative; }
-    .service-card:hover { border-color: var(--primary-blue-light); transform: translateY(-8px); box-shadow: var(--shadow-glow); }
-    .service-icon { width: 56px; height: 56px; border-radius: 14px; background: rgba(37, 99, 235, 0.15); color: #60a5fa; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 24px; }
-    .service-card h3 { font-size: 20px; margin-bottom: 12px; }
-    .service-card p { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
-    .service-card ul { list-style: none; margin-bottom: 24px; }
-    .service-card ul li { font-size: 13px; color: #cbd5e1; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-    .service-card ul li i { color: var(--accent-gold); }
+  return (
+    <div
+      style={{
+        backgroundColor: theme?.colors?.bgMain || "#0f172a",
+        color: theme?.colors?.textMain || "#f8fafc",
+        fontFamily: theme?.typography?.bodyFont ? `'${theme.typography.bodyFont}', sans-serif` : "'Plus Jakarta Sans', sans-serif",
+      }}
+      className="min-h-screen text-slate-100 font-sans leading-relaxed selection:bg-amber-500 selection:text-slate-950"
+    >
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-    .calculator-section { background: rgba(30, 41, 59, 0.5); border-y: 1px solid rgba(255, 255, 255, 0.08); }
-    .calculator-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 24px; padding: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-    .calc-slider-group { margin-bottom: 24px; }
-    .calc-label { display: flex; justify-content: space-between; font-weight: 600; font-size: 15px; margin-bottom: 10px; }
-    .calc-label span.value { color: var(--accent-gold); font-size: 18px; font-weight: 800; }
-    .range-input { width: 100%; height: 8px; border-radius: 5px; background: #334155; outline: none; accent-color: var(--primary-blue-light); }
-    .calc-result-box { background: rgba(15, 23, 42, 0.8); border-radius: 16px; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(255, 255, 255, 0.05); }
-    .result-item { margin-bottom: 20px; }
-    .result-item div.title { font-size: 13px; color: var(--text-muted); }
-    .result-item div.amount { font-family: var(--font-heading); font-size: 28px; font-weight: 800; color: #60a5fa; }
-
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
-    .why-box { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: var(--radius); padding: 30px 20px; text-align: center; }
-    .why-icon { font-size: 32px; color: var(--accent-gold); margin-bottom: 16px; }
-    .why-box h4 { font-size: 17px; margin-bottom: 8px; }
-    .why-box p { font-size: 13px; color: var(--text-muted); }
-
-    .form-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 24px; padding: 50px; box-shadow: var(--shadow-glow); }
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
-    .form-input { width: 100%; padding: 14px 16px; border-radius: var(--radius); background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; font-size: 15px; outline: none; }
-    .form-input:focus { border-color: #60a5fa; }
-
-    footer { background: #090d16; padding: 50px 0 24px; border-top: 1px solid rgba(255, 255, 255, 0.05); text-align: center; font-size: 14px; color: var(--text-muted); }
-
-    @media (max-width: 992px) {
-      .hero-grid, .calculator-card, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-      .hero-text h1 { font-size: 34px; }
-      .nav-menu { display: none; }
-    }
-  </style>
-
-  <!-- TOP BAR -->
-  <div class="top-bar">
-    <div class="container top-flex">
-      <div><i class="fa-solid fa-bolt"></i> TƯ VẤN HỒ SƠ TÀI CHÍNH DUYỆT NHANH TRONG 15 PHÚT</div>
-      <div>HOTLINE TƯ VẤN 24/7: <strong>1900 6868 - 0988 999 888</strong></div>
-    </div>
-  </div>
-
-  <!-- HEADER -->
-  <header>
-    <div class="container nav-wrapper">
-      <a href="#" class="logo-brand">
-        <div class="logo-icon"><i class="fa-solid fa-credit-card"></i></div>
-        <div>TÀI CHÍNH <span>SOLUTION VIB</span></div>
-      </a>
-
-      <ul class="nav-menu">
-        <li><a href="#about">Giới Thiệu</a></li>
-        <li><a href="#services">Dịch Vụ Thẻ & Vay</a></li>
-        <li><a href="#calculator">Tính Lãi Suất</a></li>
-        <li><a href="#why">Ưu Điểm</a></li>
-        <li><a href="#register">Đăng Ký</a></li>
-        <li><a href="/admin" style="color:#f59e0b; font-weight:bold;">⚙️ Admin</a></li>
-      </ul>
-
-      <a href="#register" class="btn btn-gold"><i class="fa-solid fa-headset"></i> TƯ VẤN MIỄN PHÍ</a>
-    </div>
-  </header>
-
-  <!-- HERO SECTION -->
-  <section class="hero-section" id="about">
-    <div class="container hero-grid">
-      <div class="hero-text">
-        <div class="badge-pill"><i class="fa-solid fa-shield-check"></i> GIẢI PHÁP TÀI CHÍNH DÂN DỤNG & DOANH NGHIỆP</div>
-        <h1>MỞ THẺ TÍN DỤNG & <span>VAY VỐN HẠN MỨC CAO VIB</span></h1>
-        <p>Hỗ trợ mở thẻ tín dụng cashback hoàn tiền tới 15%, vay tiêu dùng, vay mua nhà/xe với lãi suất ưu đãi chỉ từ 0.6%/tháng. Thủ tục tối giản, giải ngân nhanh trong ngày.</p>
-
-        <div class="hero-stats-flex">
-          <div class="stat-item">
-            <h3>10,000+</h3>
-            <p>Hồ Sơ Đã Duyệt</p>
-          </div>
-          <div class="stat-item">
-            <h3>15 Phút</h3>
-            <p>Xử Lý Hồ Sơ</p>
-          </div>
-          <div class="stat-item">
-            <h3>0 VNĐ</h3>
-            <p>Phí Tư Vấn ban đầu</p>
+      {/* TOP BAR */}
+      {topbar && theme?.components?.showTopBar && (
+        <div
+          style={{ background: theme?.colors?.gold || "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)", color: "#000" }}
+          className="py-2 px-4 text-xs font-extrabold"
+        >
+          <div className="max-w-[1240px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+            <div><i className={`fa-solid ${topbar.icon || "fa-bolt"} mr-2`}></i> {topbar.title}</div>
+            <div>{topbar.description}</div>
           </div>
         </div>
+      )}
 
-        <div style="display:flex; gap:16px;">
-          <a href="#register" class="btn btn-blue"><i class="fa-solid fa-paper-plane"></i> ĐĂNG KÝ HỒ SƠ NGAY</a>
-          <a href="#calculator" class="btn btn-gold"><i class="fa-solid fa-calculator"></i> TÍNH LÃI SUẤT</a>
-        </div>
-      </div>
+      {/* HEADER */}
+      {header && (
+        <header
+          className={`sticky top-0 z-40 py-4 px-4 border-b border-white/10 backdrop-blur-md bg-slate-950/90`}
+        >
+          <div className="max-w-[1240px] mx-auto flex items-center justify-between">
+            <a href="#" className="flex items-center gap-3 font-extrabold text-xl tracking-tight">
+              {site?.logoUrl ? (
+                <img src={site.logoUrl} alt={site.siteName} className="h-10 w-auto" />
+              ) : (
+                <div
+                  style={{ background: theme?.colors?.primaryBlue || "#2563eb" }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-lg shadow-md"
+                >
+                  <i className={`fa-solid ${header.icon || "fa-credit-card"}`}></i>
+                </div>
+              )}
+              <div>
+                <span className="text-white">{header.title || "DỊCH VỤ"} </span>
+                <span style={{ color: theme?.colors?.gold || "#f59e0b" }}>{header.subtitle || "TÀI CHÍNH"}</span>
+              </div>
+            </a>
 
-      <div class="hero-card-display">
-        <img src="https://images.unsplash.com/photo-1556742049-0a67daf64f42?q=80&w=800&auto=format&fit=crop" alt="Thẻ tín dụng và tư vấn tài chính" />
-      </div>
-    </div>
-  </section>
+            {/* Navigation Menu */}
+            <ul className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-300">
+              {navItems.map((nav) => (
+                <li key={nav.id}>
+                  <a href={nav.target} className="hover:text-amber-400 transition">
+                    {nav.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
 
-  <!-- DỊCH VỤ CỐT LÕI -->
-  <section class="section-padding" id="services">
-    <div class="container">
-      <div class="title-center">
-        <div class="badge-pill">SẢN PHẨM TÀI CHÍNH</div>
-        <h2>DỊCH VỤ TƯ VẤN TRỌNG ĐIỂM</h2>
-      </div>
-
-      <div class="grid-3">
-        <!-- CARD 1 -->
-        <div class="service-card">
-          <div class="service-icon"><i class="fa-solid fa-credit-card"></i></div>
-          <h3>Mở Thẻ Tín Dụng Hạn Mức Cao</h3>
-          <p>Mở thẻ các ngân hàng VIB, VPBank, Techcombank, Sacombank hạn mức từ 20 triệu - 500 triệu đ.</p>
-          <ul>
-            <li><i class="fa-solid fa-circle-check"></i> Miễn phí phí thường niên năm đầu</li>
-            <li><i class="fa-solid fa-circle-check"></i> Hoàn tiền mua sắm tới 15%</li>
-            <li><i class="fa-solid fa-circle-check"></i> Miễn lãi tối đa 55 ngày</li>
-          </ul>
-          <a href="#register" class="btn btn-blue" style="width:100%;">ĐĂNG KÝ MỞ THẺ</a>
-        </div>
-
-        <!-- CARD 2 -->
-        <div class="service-card">
-          <div class="service-icon"><i class="fa-solid fa-sack-dollar"></i></div>
-          <h3>Vay Tiêu Dùng & Mua Nhà / Xe</h3>
-          <p>Hỗ trợ gói vay chấp/thế chấp hạn mức lên đến 5 tỷ VNĐ với thời hạn linh hoạt tới 35 năm.</p>
-          <ul>
-            <li><i class="fa-solid fa-circle-check"></i> Lãi suất ưu đãi từ 0.6%/tháng</li>
-            <li><i class="fa-solid fa-circle-check"></i> Không cần chứng minh thu nhập phức tạp</li>
-            <li><i class="fa-solid fa-circle-check"></i> Đội ngũ hỗ trợ duyệt hồ sơ tận nơi</li>
-          </ul>
-          <a href="#register" class="btn btn-blue" style="width:100%;">ĐĂNG KÝ VAY VỐN</a>
-        </div>
-
-        <!-- CARD 3 -->
-        <div class="service-card">
-          <div class="service-icon"><i class="fa-solid fa-arrows-rotate"></i></div>
-          <h3>Đáo Hạn & Rút Tiền Thẻ Tín Dụng</h3>
-          <p>Dịch vụ giải chấp đáo hạn và rút tiền mặt từ thẻ tín dụng nhanh chóng 24/7 với phí cạnh tranh.</p>
-          <ul>
-            <li><i class="fa-solid fa-circle-check"></i> Phí rút/đáo chỉ từ 1.2%</li>
-            <li><i class="fa-solid fa-circle-check"></i> Tránh nợ xấu và tăng điểm tín dụng</li>
-            <li><i class="fa-solid fa-circle-check"></i> Nhận tiền ngay qua chuyển khoản</li>
-          </ul>
-          <a href="#register" class="btn btn-blue" style="width:100%;">ĐĂNG KÝ ĐÁO HẠN</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CALCULATOR SECTION -->
-  <section class="section-padding calculator-section" id="calculator">
-    <div class="container">
-      <div class="title-center">
-        <div class="badge-pill">CÔNG CỤ TỰ ĐỘNG</div>
-        <h2>TÍNH TOÁN KHOẢN VAY & TRẢ HÀNG THÁNG</h2>
-      </div>
-
-      <div class="calculator-card">
-        <div>
-          <div class="calc-slider-group">
-            <div class="calc-label">
-              <span>Số Tiền Vay Dự Kiến:</span>
-              <span class="value" id="amountVal">100.000.000 VNĐ</span>
-            </div>
-            <input type="range" min="10" max="1000" defaultValue="100" class="range-input" id="amountRange" />
+            <a
+              href="#register"
+              style={{
+                background: theme?.colors?.gold || "#f59e0b",
+                borderRadius: theme?.components?.buttonBorderRadius || "50px",
+                color: "#000",
+              }}
+              className="px-5 py-2.5 font-bold text-xs shadow-lg shadow-amber-500/20 hover:opacity-95 transition flex items-center gap-2"
+            >
+              <i className="fa-solid fa-headset"></i> TƯ VẤN MIỄN PHÍ
+            </a>
           </div>
+        </header>
+      )}
 
-          <div class="calc-slider-group">
-            <div class="calc-label">
-              <span>Thời Gian Vay:</span>
-              <span class="value" id="monthVal">24 Tháng</span>
-            </div>
-            <input type="range" min="6" max="60" defaultValue="24" step="6" class="range-input" id="monthRange" />
-          </div>
+      {/* HERO SECTION */}
+      {hero && (
+        <section id="about" className="py-20 px-4 relative overflow-hidden">
+          <div className="max-w-[1240px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-7 space-y-6">
+              {hero.badgeText && (
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-400 text-xs font-bold uppercase tracking-wider">
+                  <i className="fa-solid fa-shield-check"></i> {hero.badgeText}
+                </div>
+              )}
 
-          <p style="font-size:12px; color:var(--text-muted); margin-top:16px;">*Lưu ý: Công cụ tính mang tính tham khảo. Lãi suất cụ thể phụ thuộc vào gói vay & điểm tín dụng CIC của bạn.</p>
-        </div>
+              <h1 className="text-3xl md:text-5xl font-black text-white leading-tight tracking-tight">
+                {hero.title}
+              </h1>
 
-        <div class="calc-result-box">
-          <div>
-            <div class="result-item">
-              <div class="title">Ước Tính Gốc + Lãi Trả Hàng Tháng:</div>
-              <div class="amount" id="monthlyPay">4.766.666 VNĐ</div>
+              <p className="text-base text-slate-400 leading-relaxed max-w-2xl">
+                {hero.description}
+              </p>
+
+              {/* Hero Stats */}
+              {hero.customData?.stats && (
+                <div className="grid grid-cols-3 gap-6 pt-4 border-t border-white/10">
+                  {hero.customData.stats.map((st: any, idx: number) => (
+                    <div key={idx}>
+                      <div style={{ color: theme?.colors?.gold || "#f59e0b" }} className="text-2xl font-black">
+                        {st.number}
+                      </div>
+                      <div className="text-xs text-slate-400 mt-1">{st.label}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-4 pt-2">
+                {hero.ctaButtons?.map((btn, idx) => (
+                  <a
+                    key={idx}
+                    href={btn.link}
+                    style={{
+                      background: btn.style === "gold" ? (theme?.colors?.gold || "#f59e0b") : (theme?.colors?.primaryBlue || "#2563eb"),
+                      color: btn.style === "gold" ? "#000" : "#fff",
+                      borderRadius: theme?.components?.buttonBorderRadius || "50px",
+                    }}
+                    className="px-7 py-3.5 font-bold text-sm shadow-xl flex items-center gap-2.5 transition hover:-translate-y-0.5"
+                  >
+                    <i className="fa-solid fa-paper-plane"></i> {btn.text}
+                  </a>
+                ))}
+              </div>
             </div>
 
-            <div style="font-size:13px; color:var(--text-muted); line-height:1.8;">
-              • Lãi suất giả định: 0.7%/tháng<br/>
-              • Phương thức trả: Gốc chia đều + Lãi giảm dần<br/>
+            <div className="lg:col-span-5">
+              <div className="relative p-3 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-2xl overflow-hidden">
+                <img
+                  src={hero.mediaUrl || "https://images.unsplash.com/photo-1556742049-0a67daf64f42?q=80&w=800&auto=format&fit=crop"}
+                  alt={hero.title}
+                  className="w-full rounded-2xl object-cover aspect-4/3"
+                />
+              </div>
             </div>
           </div>
+        </section>
+      )}
 
-          <a href="#register" class="btn btn-gold" style="width:100%;"><i class="fa-solid fa-file-invoice-dollar"></i> NHẬN DỰ TOÁN BÁO GIÁ CHI TIẾT</a>
-        </div>
-      </div>
-    </div>
-  </section>
+      {/* SERVICES / PRODUCTS SECTION */}
+      {services && (
+        <section id="services" className="py-20 px-4 bg-slate-950/60 border-y border-white/5">
+          <div className="max-w-[1240px] mx-auto space-y-12">
+            <div className="text-center max-w-2xl mx-auto space-y-3">
+              {services.badgeText && (
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider">
+                  {services.badgeText}
+                </div>
+              )}
+              <h2 className="text-3xl font-extrabold text-white">{services.title}</h2>
+              <p className="text-sm text-slate-400">{services.description}</p>
+            </div>
 
-  <!-- UY TÍN & ƯU ĐIỂM -->
-  <section class="section-padding" id="why">
-    <div class="container">
-      <div class="title-center">
-        <div class="badge-pill">LÝ DO CHỌN CHÚNG TÔI</div>
-        <h2>ƯU THẾ VƯỢT TRỘI KHÓ GIAO DỊCH</h2>
-      </div>
+            {/* Products Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {products.map((prod) => (
+                <div
+                  key={prod.id}
+                  style={{
+                    backgroundColor: theme?.colors?.cardBg || "rgba(30, 41, 59, 0.85)",
+                    borderRadius: theme?.components?.cardBorderRadius || "14px",
+                  }}
+                  className="border border-white/10 p-6 flex flex-col justify-between space-y-6 hover:border-blue-500/50 transition-all shadow-xl hover:-translate-y-1"
+                >
+                  <div className="space-y-4">
+                    <div className="w-14 h-14 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-2xl">
+                      <i className={`fa-solid ${prod.icon || "fa-credit-card"}`}></i>
+                    </div>
 
-      <div class="grid-4">
-        <div class="why-box">
-          <div class="why-icon"><i class="fa-solid fa-id-card"></i></div>
-          <h4>Thủ Tục Đơn Giản</h4>
-          <p>Chỉ cần CCCD/CMND, không yêu cầu chứng minh tài sản phức tạp.</p>
-        </div>
+                    <h3 className="text-xl font-bold text-white">{prod.title}</h3>
+                    <p className="text-xs text-slate-400 leading-relaxed">{prod.shortDescription}</p>
 
-        <div class="why-box">
-          <div class="why-icon"><i class="fa-solid fa-bolt"></i></div>
-          <h4>Duyệt Nhanh 15 Phút</h4>
-          <p>Hệ thống hỗ trợ kiểm tra và thẩm định hồ sơ tự động siêu tốc.</p>
-        </div>
+                    <ul className="space-y-2.5 pt-2">
+                      {prod.benefits?.map((b, i) => (
+                        <li key={i} className="text-xs text-slate-300 flex items-center gap-2">
+                          <i className="fa-solid fa-circle-check text-amber-400"></i>
+                          <span>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-        <div class="why-box">
-          <div class="why-icon"><i class="fa-solid fa-lock"></i></div>
-          <h4>Bảo Mật 100%</h4>
-          <p>Mọi thông tin cá nhân và tài chính được mã hóa bảo mật tuyệt đối.</p>
-        </div>
+                  <a
+                    href="#register"
+                    style={{
+                      background: theme?.colors?.primaryBlue || "#2563eb",
+                      borderRadius: theme?.components?.buttonBorderRadius || "50px",
+                    }}
+                    className="w-full py-3 text-center font-bold text-xs text-white shadow-lg shadow-blue-500/20 hover:opacity-95 transition"
+                  >
+                    {prod.ctaText || "ĐĂNG KÝ NGAY"}
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
-        <div class="why-box">
-          <div class="why-icon"><i class="fa-solid fa-handshake-simple"></i></div>
-          <h4>Hỗ Trợ Nợ Xấu CIC</h4>
-          <p>Tư vấn giải pháp cơ cấu lại nợ và xử lý điểm tín dụng CIC xấu.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+      {/* CALCULATOR SECTION */}
+      {calculator && (
+        <section id="calculator" className="py-20 px-4">
+          <div className="max-w-[1240px] mx-auto space-y-12">
+            <div className="text-center max-w-2xl mx-auto space-y-3">
+              {calculator.badgeText && (
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-400 text-xs font-bold uppercase tracking-wider">
+                  {calculator.badgeText}
+                </div>
+              )}
+              <h2 className="text-3xl font-extrabold text-white">{calculator.title}</h2>
+              <p className="text-sm text-slate-400">{calculator.description}</p>
+            </div>
 
-  <!-- FORM REGISTRATION -->
-  <section class="section-padding" id="register">
-    <div class="container" style="max-width:700px;">
-      <div class="form-box">
-        <div class="title-center" style="margin-bottom:30px;">
-          <div class="badge-pill">TƯ VẤN 1:1 MIỄN PHÍ</div>
-          <h2>ĐĂNG KÝ HỒ SƠ TÀI CHÍNH VIB</h2>
-        </div>
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center shadow-2xl">
+              <div className="space-y-6">
+                <div>
+                  <div className="flex justify-between text-sm font-semibold mb-2">
+                    <span>Số Tiền Vay Dự Kiến:</span>
+                    <span className="text-amber-400 font-extrabold text-lg">
+                      {totalLoan.toLocaleString("vi-VN")} VNĐ
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="10"
+                    max="1000"
+                    value={loanAmountMillion}
+                    onChange={(e) => setLoanAmountMillion(Number(e.target.value))}
+                    className="w-full accent-blue-500 cursor-pointer"
+                  />
+                </div>
 
-        <form id="regForm">
-          <div class="form-group">
-            <label>Họ và Tên Khách Hàng (*)</label>
-            <input type="text" class="form-input" placeholder="Nhập họ và tên của bạn" required />
+                <div>
+                  <div className="flex justify-between text-sm font-semibold mb-2">
+                    <span>Thời Gian Vay:</span>
+                    <span className="text-amber-400 font-extrabold text-lg">{loanMonths} Tháng</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="6"
+                    max="60"
+                    step="6"
+                    value={loanMonths}
+                    onChange={(e) => setLoanMonths(Number(e.target.value))}
+                    className="w-full accent-blue-500 cursor-pointer"
+                  />
+                </div>
+
+                <p className="text-[11px] text-slate-500 italic">
+                  *Lưu ý: Công cụ tính mang tính tham khảo. Lãi suất cụ thể phụ thuộc gói vay & điểm tín dụng CIC của bạn.
+                </p>
+              </div>
+
+              <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between space-y-6">
+                <div>
+                  <div className="text-xs text-slate-400 mb-1">Ước Tính Gốc + Lãi Trả Hàng Tháng:</div>
+                  <div className="text-3xl font-black text-blue-400">
+                    {totalMonthlyPay.toLocaleString("vi-VN")} VNĐ
+                  </div>
+                  <div className="text-xs text-slate-500 mt-3 space-y-1">
+                    <div>• Lãi suất giả định: 0.7%/tháng</div>
+                    <div>• Phương thức trả: Gốc chia đều + Lãi giảm dần</div>
+                  </div>
+                </div>
+
+                <a
+                  href="#register"
+                  style={{
+                    background: theme?.colors?.gold || "#f59e0b",
+                    borderRadius: theme?.components?.buttonBorderRadius || "50px",
+                    color: "#000",
+                  }}
+                  className="w-full py-3 text-center font-bold text-xs shadow-lg shadow-amber-500/20 hover:opacity-95 transition"
+                >
+                  <i className="fa-solid fa-file-invoice-dollar mr-2"></i> NHẬN DỰ TOÁN CHI TIẾT
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* WHY US SECTION */}
+      {whyUs && whyUs.customData?.highlights && (
+        <section id="why" className="py-20 px-4 bg-slate-950/40 border-t border-white/5">
+          <div className="max-w-[1240px] mx-auto space-y-12">
+            <div className="text-center max-w-2xl mx-auto space-y-3">
+              <h2 className="text-3xl font-extrabold text-white">{whyUs.title}</h2>
+              <p className="text-sm text-slate-400">{whyUs.description}</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {whyUs.customData.highlights.map((hl: any, idx: number) => (
+                <div key={idx} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 text-center space-y-3">
+                  <div className="text-3xl text-amber-400">
+                    <i className={`fa-solid ${hl.icon}`}></i>
+                  </div>
+                  <h4 className="text-base font-bold text-white">{hl.title}</h4>
+                  <p className="text-xs text-slate-400 leading-relaxed">{hl.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ABOUT NGUYEN MINH THUC */}
+      {aboutThuc && (
+        <section className="py-20 px-4 bg-slate-900/40">
+          <div className="max-w-[1240px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
+            <div className="md:col-span-5">
+              <img
+                src={aboutThuc.mediaUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop"}
+                alt={aboutThuc.title}
+                className="rounded-3xl border border-slate-800 shadow-2xl object-cover w-full aspect-3/4"
+              />
+            </div>
+            <div className="md:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider">
+                {aboutThuc.badgeText}
+              </div>
+              <h2 className="text-3xl font-black text-white">{aboutThuc.title}</h2>
+              <p className="text-sm text-slate-300 leading-relaxed font-sans">{aboutThuc.description}</p>
+              <div className="pt-4 flex items-center gap-4">
+                <a
+                  href={`tel:${site?.contact?.phone}`}
+                  style={{ background: theme?.colors?.gold || "#f59e0b", color: "#000", borderRadius: "50px" }}
+                  className="px-6 py-3 font-extrabold text-xs shadow-lg shadow-amber-500/20"
+                >
+                  <i className="fa-solid fa-phone mr-2"></i> GỌI TƯ VẤN TRỰC TIẾP
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* REGISTER FORM SECTION */}
+      {registerForm && (
+        <section id="register" className="py-20 px-4">
+          <div className="max-w-xl mx-auto bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6">
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider">
+                {registerForm.badgeText}
+              </div>
+              <h2 className="text-2xl font-extrabold text-white">{registerForm.title}</h2>
+              <p className="text-xs text-slate-400">{registerForm.description}</p>
+            </div>
+
+            <form onSubmit={handleFormSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Họ và Tên Khách Hàng (*)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Nhập họ và tên của bạn"
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100 focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Số Điện Thoại Zalo (*)</label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="Nhập số điện thoại Zalo"
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100 focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Nhu Cầu Của Bạn (*)</label>
+                <select className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100 focus:outline-none focus:border-amber-500">
+                  <option>Mở Thẻ Tín Dụng Hạn Mức Cao</option>
+                  <option>Vay Mua Nhà / Vay Thế Chấp</option>
+                  <option>Vay Mua Ô Tô Ưu Đãi</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Số Tiền Cần Hỗ Trợ Dự Kiến</label>
+                <input
+                  type="text"
+                  placeholder="Ví dụ: 100.000.000 VNĐ"
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100 focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <button
+                type="submit"
+                style={{
+                  background: theme?.colors?.gold || "#f59e0b",
+                  borderRadius: theme?.components?.buttonBorderRadius || "50px",
+                  color: "#000",
+                }}
+                className="w-full py-3.5 font-black text-xs uppercase tracking-wider shadow-lg shadow-amber-500/20 hover:opacity-95 transition cursor-pointer"
+              >
+                <i className="fa-solid fa-paper-plane mr-2"></i> GỬI YÊU CẦU TƯ VẤN
+              </button>
+            </form>
+          </div>
+        </section>
+      )}
+
+      {/* FOOTER & IMMUTABLE DISCLAIMER */}
+      <footer className="bg-slate-950 border-t border-slate-900 py-10 px-4 text-center text-xs text-slate-500 space-y-4">
+        <div className="max-w-[1240px] mx-auto space-y-3">
+          {/* IMMUTABLE VIB DISCLAIMER (ALWAYS PRESENT) */}
+          <div className="bg-slate-900/60 border border-slate-850 p-4 rounded-2xl text-[11px] text-slate-400 max-w-4xl mx-auto leading-relaxed">
+            <div className="font-bold text-amber-400 mb-1">⚠️ TUYÊN BỐ MIỄN TRỪ TRÁCH NHIỆM:</div>
+            <div>{seo?.immutableDisclaimer}</div>
+            {seo?.customDisclaimerNote && <div className="mt-1 text-slate-500">{seo.customDisclaimerNote}</div>}
           </div>
 
-          <div class="form-group">
-            <label>Số Điện Thoại Zalo (*)</label>
-            <input type="tel" class="form-input" placeholder="Nhập số điện thoại Zalo" required />
-          </div>
-
-          <div class="form-group">
-            <label>Nhu Cầu Của Bạn (*)</label>
-            <select class="form-input">
-              <option>Mở Thẻ Tín Dụng Hạn Mức Cao</option>
-              <option>Vay Tiêu Dùng / Vay Mua Nhà, Xe</option>
-              <option>Đáo Hạn & Rút Tiền Thẻ Tín Dụng</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Số Tiền Cần Hỗ Trợ Dự Kiến</label>
-            <input type="text" class="form-input" placeholder="Ví dụ: 100.000.000 VNĐ" />
-          </div>
-
-          <button type="submit" class="btn btn-gold" style="width:100%;"><i class="fa-solid fa-paper-plane"></i> GỬI YÊU CẦU TƯ VẤN</button>
-        </form>
-      </div>
+          <p>&copy; 2026 {site?.siteName || "Dịch Vụ Tài Chính Solution"}. Tất cả quyền được bảo lưu.</p>
+          <p>{site?.contact?.address}. Hotline: {site?.contact?.phone}</p>
+        </div>
+      </footer>
     </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="container">
-      <p style="margin-bottom:10px;">&copy; 2026 Tài Chính Solution VIB. Tất cả quyền được bảo lưu.</p>
-      <p style="font-size:12px;">Địa chỉ văn phòng: Tòa nhà Landmark Financial, Quận Cầu Giấy, Hà Nội. Hotline: 1900 6868</p>
-    </div>
-  </footer>
-  `;
-
-  return <div dangerouslySetInnerHTML={{ __html: rawHtml }} />;
+  );
 }
