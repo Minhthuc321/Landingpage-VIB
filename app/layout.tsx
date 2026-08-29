@@ -1,8 +1,26 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Be_Vietnam_Pro } from "next/font/google";
-import { siteConfig } from "@/config/site";
 import "./globals.css";
-const font=Be_Vietnam_Pro({subsets:["vietnamese"],weight:["400","500","600","700","800","900"],variable:"--font-be-vietnam",display:"swap"});
-export const metadata:Metadata={metadataBase:new URL(siteConfig.url),title:siteConfig.title,description:siteConfig.description,openGraph:{title:siteConfig.title,description:"Đồng hành tìm hiểu giải pháp tài chính phù hợp với nhu cầu thực tế.",type:"website",locale:"vi_VN",url:"/"},alternates:{canonical:"/"}};
-export default function RootLayout({children}:{children:ReactNode}){return <html lang="vi" className={font.variable}><body>{children}</body></html>}
+
+export const metadata: Metadata = {
+  title: "Tư Vấn Giải Pháp Tài Chính - Mở Thẻ Tín Dụng & Vay Vốn Hạn Mức Cao 2026",
+  description: "Chuyên tư vấn mở thẻ tín dụng hạn mức cao, vay tiêu dùng, vay mua nhà/xe và đáo hạn thẻ tín dụng uy tín, duyệt nhanh trong 15 phút.",
+  openGraph: {
+    title: "Tư Vấn Giải Pháp Tài Chính - Mở Thẻ Tín Dụng & Vay Vốn Hạn Mức Cao 2026",
+    description: "Chuyên tư vấn mở thẻ tín dụng hạn mức cao, vay tiêu dùng, vay mua nhà/xe và đáo hạn thẻ tín dụng uy tín, duyệt nhanh trong 15 phút.",
+    type: "website",
+    locale: "vi_VN",
+    url: "/",
+  },
+  alternates: {
+    canonical: "/",
+  },
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="vi">
+      <body>{children}</body>
+    </html>
+  );
+}
